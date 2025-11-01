@@ -61,7 +61,7 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="text-center text-sm text-gray-500 mt-10">
-        Made with ❤️ by <span className="text-purple-300 font-medium">ShoeVerse</span> · © {new Date().getFullYear()}
+        Made with ❤️ by <span className="text-purple-300 font-medium">Sourav</span> · © {new Date().getFullYear()}
       </div>
     </motion.footer>
   )

@@ -214,11 +214,52 @@ export default function Shop() {
   const deferred = useDeferredValue(filtered);
   const categories = ["All", "Men", "Women", "Unisex", "Sports"];
 
-  const handleAddToCart = (shoe) => dispatch(addToCart(shoe));
-  const handleBuyNow = (shoe) => {
-    dispatch(addToCart(shoe));
+ const handleAddToCart = (shoe) => {
+  setItems((prev) =>
+    prev.map((it) =>
+      it.id === shoe.id ? { ...it, added: true, quantity: 1 } : it
+    )
+  );
+  dispatch(addToCart({ ...shoe, quantity: 1 }));
+};
+
+// When user clicks "Buy Now"
+const handleBuyNow = (shoe) => {
+  // Ensure item is added to cart before redirect
+  dispatch(addToCart({ ...shoe, quantity: shoe.quantity || 1 }));
+  
+  // Navigate to cart page after short delay for Redux update
+  setTimeout(() => {
     navigate("/cart");
-  };
+  }, 100);
+};
+
+
+  // Handle quantity changes locally (without Redux lag)
+const handleQuantityChange = (id, delta) => {
+  setItems((prev) =>
+    prev.map((shoe) =>
+      shoe.id === id
+        ? {
+            ...shoe,
+            quantity: Math.max(1, (shoe.quantity || 1) + delta),
+            added: (shoe.quantity || 1) + delta > 0,
+          }
+        : shoe
+    )
+  );
+
+  const target = items.find((it) => it.id === id);
+  if (target) {
+    dispatch(
+      addToCart({
+        ...target,
+        quantity: Math.max(1, (target.quantity || 1) + delta),
+      })
+    );
+  }
+};
+
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -352,20 +393,40 @@ export default function Shop() {
               </div>
 
               <div className="mt-4 flex flex-col gap-2">
-                <button
-                  onClick={() => handleAddToCart(shoe)}
-                  className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium hover:brightness-110 disabled:opacity-40"
-                >
-                  <ShoppingCart className="w-4 h-4" />
-                  Add to Cart
-                </button>
-                <button
-                  onClick={() => handleBuyNow(shoe)}
-                  className="px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 to-pink-500 text-black font-extrabold shadow hover:brightness-110"
-                >
-                  Buy Now
-                </button>
-              </div>
+  {shoe.added ? (
+    <div className="flex items-center justify-between bg-zinc-800/70 rounded-full px-3 py-2">
+      <button
+        onClick={() => handleQuantityChange(shoe.id, -1)}
+        className="px-3 py-1 rounded-full bg-zinc-700 text-white hover:bg-zinc-600"
+      >
+        −
+      </button>
+      <span className="font-semibold">{shoe.quantity || 1}</span>
+      <button
+        onClick={() => handleQuantityChange(shoe.id, 1)}
+        className="px-3 py-1 rounded-full bg-zinc-700 text-white hover:bg-zinc-600"
+      >
+        +
+      </button>
+    </div>
+  ) : (
+    <button
+      onClick={() => handleAddToCart(shoe)}
+      className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium hover:brightness-110"
+    >
+      <ShoppingCart className="w-4 h-4" />
+      Add to Cart
+    </button>
+  )}
+
+  <button
+    onClick={() => handleBuyNow(shoe)}
+    className="px-4 py-2 rounded-full bg-gradient-to-r from-yellow-400 to-pink-500 text-black font-extrabold shadow hover:brightness-110"
+  >
+    Buy Now
+  </button>
+</div>
+
             </motion.div>
           ))}
         </div>
