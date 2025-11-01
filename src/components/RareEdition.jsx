@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import nikeban from './RareEdition.png'; // ✅ file is in the same folder
 
 export default function RareEditionBanner() {
-  const fallback = '/images/ShopBg.jpg'; // or any placeholder in /public
+  const fallback = './nikeban.jpg'; // or any placeholder in /public
 
   return (
     <section className="relative w-full h-[60vh] md:h-[50vh] overflow-hidden">
@@ -12,7 +12,7 @@ export default function RareEditionBanner() {
       <img
         src={nikeban}
         onError={(e) => { e.currentTarget.src = fallback; }}
-        alt="Rare edition Shoes"
+        alt="banner  Shoes"
         className="w-full h-full object-cover"
         loading="lazy"
         decoding="async"
