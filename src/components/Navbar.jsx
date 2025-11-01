@@ -1,17 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState, memo } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useSelector, shallowEqual } from 'react-redux';
 import logo from '../assets/logo.png';
 
-const Navbar = () => {
-  const totalItems = useSelector((state) =>
-    state.cart.items.reduce((total, item) => total + item.quantity, 0)
+const activeClass =
+  "text-cyan-300 relative after:content-[''] after:block after:h-[3px] after:w-full after:bg-cyan-400 after:rounded-full after:mt-1 drop-shadow-[0_0_8px_rgba(34,211,238,0.7)]";
+const baseClass =
+  "hover:text-cyan-300 transition duration-300 hover:drop-shadow-[0_0_6px_cyan]";
+
+function Navbar() {
+  const totalItems = useSelector(
+    (state) => state.cart.items.reduce((t, i) => t + i.quantity, 0),
+    shallowEqual
   );
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // Check login state on load
   useEffect(() => {
     const loginStatus = localStorage.getItem('isLoggedIn');
     setIsLoggedIn(loginStatus === 'true');
@@ -20,86 +25,54 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     setIsLoggedIn(false);
-    navigate('/user'); // Redirect to login page
+    navigate('/user');
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-white/10 backdrop-blur-md text-white shadow-md">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-zinc-950/70 backdrop-blur-md text-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] border-b border-white/10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <img src={logo} alt="Logo" className="w-10 h-10 object-contain" />
-          <span
-            className="text-xl font-bold tracking-widest"
-            style={{ fontFamily: "'Orbitron', sans-serif" }}
-          >
+          <span className="text-xl font-bold tracking-widest" style={{ fontFamily: "'Orbitron', sans-serif" }}>
             NeoKicks
           </span>
         </div>
 
-        {/* Nav Links */}
-        <ul
-          className="flex space-x-10 text-sm md:text-base font-semibold"
-          style={{ fontFamily: "'Poppins', sans-serif" }}
-        >
+        {/* Links */}
+        <ul className="flex gap-8 text-sm md:text-base font-semibold" style={{ fontFamily: "'Poppins', sans-serif" }}>
           <li>
-            <Link
-              to="/"
-              className="hover:text-cyan-400 transition duration-300 hover:drop-shadow-[0_0_6px_cyan]"
-            >
-              Home
-            </Link>
+            <NavLink to="/" className={({isActive}) => isActive ? activeClass : baseClass}>Home</NavLink>
           </li>
           <li>
-            <Link
-              to="/shop"
-              className="hover:text-cyan-400 transition duration-300 hover:drop-shadow-[0_0_6px_cyan]"
-            >
-              Shop
-            </Link>
+            <NavLink to="/shop" className={({isActive}) => isActive ? activeClass : baseClass}>Shop</NavLink>
           </li>
-          <li>
-            <Link
-              to="/cart"
-              className="relative hover:text-cyan-400 transition duration-300 hover:drop-shadow-[0_0_6px_cyan]"
-            >
+          <li className="relative">
+            <NavLink to="/cart" className={({isActive}) => isActive ? activeClass : baseClass}>
               Cart
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-3 text-xs sm:text-sm bg-red-600 text-white rounded-full px-2 py-0.5">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
+            </NavLink>
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-3 text-xs sm:text-sm bg-red-600 text-white rounded-full px-2 py-0.5">
+                {totalItems}
+              </span>
+            )}
           </li>
           <li>
-            <Link
-              to="/about"
-              className="hover:text-cyan-400 transition duration-300 hover:drop-shadow-[0_0_6px_cyan]"
-            >
-              About
-            </Link>
+            <NavLink to="/about" className={({isActive}) => isActive ? activeClass : baseClass}>About</NavLink>
           </li>
           <li>
             {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="hover:text-red-500 transition duration-300 hover:drop-shadow-[0_0_6px_red]"
-              >
+              <button onClick={handleLogout} className="hover:text-red-500 transition duration-300 hover:drop-shadow-[0_0_6px_red]">
                 Logout
               </button>
             ) : (
-              <Link
-                to="/user"
-                className="hover:text-cyan-400 transition duration-300 hover:drop-shadow-[0_0_6px_cyan]"
-              >
-                Login
-              </Link>
+              <NavLink to="/user" className={({isActive}) => isActive ? activeClass : baseClass}>Login</NavLink>
             )}
           </li>
         </ul>
       </div>
     </nav>
   );
-};
+}
 
-export default Navbar;
+export default memo(Navbar);
